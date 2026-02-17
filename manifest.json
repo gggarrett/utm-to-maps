@@ -1,7 +1,7 @@
 {
   "name": "UTM to Maps",
   "short_name": "UTM Maps",
-  "start_url": "/",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
@@ -17,4 +17,5 @@
       "type": "image/png"
 	}
   ]
+
 }
