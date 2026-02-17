@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>UTM to Maps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="js/proj4.js"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0f1115;
+      color: #e4e7eb;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 420px;
+      width: 100%;
+      background-color: #1a1d24;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+	  text-align: center;
+    }
+	
+	.header {
+		border-bottom: 1px solid #2b2f3a;
+		width: 100%;
+	}
+
+    h2,h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #8be9fd;
+    }
+
+    .input-group {
+      padding: 12px 0;
+      border-bottom: 1px solid #2b2f3a;
+	  display: inline-flex;
+	  align-items: center;
+	  gap: 20px;
+	  width: 80%;
+	  justify-content: center;
+
+    }
+
+    .input-group:last-child {
+      border-bottom: none;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 50%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #2b2f3a;
+      background: #111318;
+      color: #e4e7eb;
+      font-size: 16px;
+    }
+
+    #latlon {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 6px;
+      color: #8be9fd;
+	  text-align: center;
+    }
+
+    .button-group {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+	
+	.result {
+	  background: rgba(255,255,255,0.05);
+	  border-radius: 12px;
+	  padding: 2px;
+	  font-size: 1.1rem;
+	  width: 70%;
+	  margin: 0 auto;
+	  margin-top: 20px;
+	  margin-bottom: 30px;
+	}
+
+
+    .apple-btn {
+      background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+      color: white;
+    }
+
+    .google-btn {
+      background: linear-gradient(135deg, #28C76F, #00B894);
+      color: white;
+    }
+
+    #addBanner {
+      display: none;
+      background-color: #111318;
+      color: #8be9fd;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      border-bottom: 1px solid #2b2f3a;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+	
+	input.no-arrows::-webkit-outer-spin-button,
+	input.no-arrows::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	input.no-arrows {
+		-moz-appearance: textfield;
+	}
+  </style>
+
+</head>
+<body>
+	<div id="addBanner" style="display: none;">
+	  📌 Tip: Tap the Share button and select "Add to Home Screen" for quick access.
+	</div>
+	<div class="container">
+		<div class="header">
+			<h2>🌍 UTM to Maps</h2>
+		</div>
+		<br>
+	  
+		<div class="input-group">
+		  <label>Zone (e.g. 12N):</label>
+		  <select id="zone" style="width:45%;">
+			<option value="">Select Zone</option>
+			<option value="7N">7N</option>
+			<option value="8N">8N</option>
+			<option value="9N">9N</option>
+			<option value="10N">10N</option>
+			<option value="11N">11N</option>
+			<option value="12N">12N</option>
+			<option value="13N">13N</option>
+			<option value="14N">14N</option>
+			<option value="15N">15N</option>
+			<option value="16N">16N</option>
+			<option value="17N">17N</option>
+			<option value="18N">18N</option>
+			<option value="19N">19N</option>
+			<option value="20N">20N</option>
+			<option value="21N">21N</option>
+			<option value="22N">22N</option>
+		  </select>
+		</div>
+		<br>
+		
+		<div class="input-group">
+			<label>Northing:</label>
+			<input type="number" id="northing" class="no-arrows">
+		</div><br>
+
+		<div class="input-group">
+			<label>Easting:</label>
+			<input type="number" id="easting" class="no-arrows">
+		</div><br><br>
+
+		<div class="result">
+			<h3>Latitude / Longitude:</h3>
+			<p id="latlon">—</p>
+		</div>
+
+	  
+	  <div class="button-group">
+		  <button class="google-btn" onclick="openMaps('google')">Open in Google Maps</button>
+		  <button class="apple-btn" onclick="openMaps('apple')">Open in Apple Maps</button>
+	  </div>
+	  
+	</div>
+
+	<script>
+		document.getElementById("easting").addEventListener("input", updateLatLon);
+		document.getElementById("northing").addEventListener("input", updateLatLon);
+		document.getElementById("zone").addEventListener("input", updateLatLon);
+		function updateLatLon() {
+
+		  const easting = parseFloat(document.getElementById("easting").value);
+		  const northing = parseFloat(document.getElementById("northing").value);
+		  const zoneInput = document.getElementById("zone").value.trim().toUpperCase();
+
+		  if (isNaN(easting) || isNaN(northing) || zoneInput.length < 1) {
+			document.getElementById("latlon").innerText = "—";
+			return;
+		  }
+
+		  const zoneNumber = parseInt(zoneInput);
+
+		  try {
+			const utmProj = `+proj=utm +zone=${zoneNumber} +datum=NAD83 +units=m +no_defs`;
+			const wgs84 = "+proj=longlat +datum=WGS84 +no_defs";
+
+			const [lon, lat] = proj4(utmProj, wgs84, [easting, northing]);
+
+			document.getElementById("latlon").innerText =
+			  `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+
+		  } catch (err) {
+			document.getElementById("latlon").innerText = "Invalid zone or coordinates";
+		  }
+		}
+		
+		
+		
+		function openMaps(m) {
+		  const latlonText = document.getElementById("latlon").innerText;
+		  if (latlonText === "—" || latlonText.includes("Invalid")) {
+			alert("Enter valid coordinates first.");
+			return;
+		  }
+		  const parts = latlonText.match(/-?\d+\.\d+/g);
+		  const lat = parts[0];
+		  const lon = parts[1];
+		  if (m === "apple") {
+			window.location.href = `https://maps.apple.com/?ll=${lat},${lon}`;
+		  } else {
+			window.location.href = `https://www.google.com/maps?q=${lat},${lon}`;
+		  }
+		}
+
+
+		
+
+		function isIOS() {
+		  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+		}
+		window.addEventListener('load', () => {
+		  if (isIOS() && !window.navigator.standalone) {
+			document.getElementById("addBanner").style.display = "block";
+		  }
+		});
+
+		
+		
+	  </script>
+
+</body>
+</html>
