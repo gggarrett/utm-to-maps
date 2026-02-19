@@ -245,7 +245,7 @@
 		  const lat = parts[0];
 		  const lon = parts[1];
 		  if (m === "apple") {
-			window.location.href = `https://maps.apple.com/?ll=${lat},${lon}&?q=Point`;
+			window.location.href = `https://maps.apple.com/?q=${lat},${lon}`;
 		  } else {
 			window.location.href = `https://www.google.com/maps?q=${lat},${lon}`;
 		  }
@@ -269,6 +269,7 @@
 
 </body>
 </html>
+
 
 
 
