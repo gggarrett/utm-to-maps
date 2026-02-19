@@ -247,7 +247,7 @@
 		  if (m === "apple") {
 			window.location.href = `https://maps.apple.com/?q=${lat},${lon}`;
 		  } else {
-			openGoogMaps(lat,lon);
+			window.location.href = `https://www.google.com/maps?q=${lat},${lon}`;
 		  }
 		}
 
@@ -263,31 +263,12 @@
 		  }
 		});
 
-		function openGoogMaps(lat, lon) {
-			const webURL = `https://www.google.com/maps?q=${lat},${lon}`;
-			const appURL = `comgooglemaps://?q=${lat},${lon}`;
-
-			let fallbackTriggered = false;
-			const timeout = setTimeout(() => {
-			    fallbackTriggered = true;
-			    window.location.href = webURL;
-			}, 1500);
-
-			window.location.href = appUrl;
-
-			window.addEventListener('blur', () => {
-			    if (!fallbackTriggered) clearTimeout(timeout);
-			});
-			
-		}
+		
 		
 	  </script>
 
 </body>
 </html>
-
-
-
 
 
 
